@@ -1,1 +1,1 @@
-# WeekDayAssessment
+# WeekDayAssessment - Candidate Application Platform
