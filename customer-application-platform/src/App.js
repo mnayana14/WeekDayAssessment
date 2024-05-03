@@ -24,7 +24,7 @@ function App() {
       try {
         const response = await fetch("https://api.weekday.technology/adhoc/getSampleJdJSON", requestOptions);
         const data = await response.json();
-        setCandidateInfo(data?.jdList);
+        setCandidateInfo(data);
       } catch (error) {
         console.error(error);
       }
