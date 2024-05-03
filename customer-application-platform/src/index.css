@@ -10,3 +10,9 @@
   padding: 20px;
   background-color: #f9f9f9;
 }
+.job-filters{
+  display: flex;
+  justify-content: space-around;
+padding-bottom: 16px;
+flex-wrap: wrap;
+}

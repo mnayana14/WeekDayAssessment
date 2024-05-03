@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import InfiniteScrollPage from './InfiniteScrollPage';
+import InfiniteScrollPage from './components/InfiniteScrollPage';
 
 function App() {
-
   const [candidateInfo, setCandidateInfo] = useState(null);
 
   useEffect(() => {
@@ -25,8 +24,6 @@ function App() {
       try {
         const response = await fetch("https://api.weekday.technology/adhoc/getSampleJdJSON", requestOptions);
         const data = await response.json();
-        console.log("Total Count:", data.totalCount); // Log the total count of jobs
-        console.log("Jobs List:", data.jobs); // Log the list of jobs
         setCandidateInfo(data?.jdList);
       } catch (error) {
         console.error(error);
@@ -37,7 +34,6 @@ function App() {
   }, []);
 
   console.log('candidateInfo', candidateInfo);
-
   return (
     <div className="App">
       <header className="App-header">
