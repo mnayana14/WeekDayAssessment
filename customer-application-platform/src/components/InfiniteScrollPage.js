@@ -1,42 +1,29 @@
 import React, { useEffect, useState } from "react";
 import "../index.css";
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Divider,
-  Chip,
-  Badge,
-  Box,
-  Avatar,
-  Typography,
-  Button,
-} from "@material-ui/core";
+import { Badge, Box, Avatar, Typography, Button } from "@material-ui/core";
+import { JobFilters } from "./JobFilters";
 
 // JobCard component
+const calculateSalaryRange = (minJdSalary, maxJdSalary) => {
+  const salary = (minJdSalary + maxJdSalary) / 2;
+  const salaryRanges = [
+    { range: "0L - 10L", min: 0, max: 10 },
+    { range: "11L - 20L", min: 11, max: 20 },
+    { range: "21L - 30L", min: 21, max: 30 },
+    { range: "31L - 40L", min: 31, max: 40 },
+    { range: "41L - 50L", min: 41, max: 50 },
+    { range: "51L - 60L", min: 51, max: 60 },
+    { range: "61L - 70L", min: 61, max: 70 },
+  ];
+
+  const matchedRange = salaryRanges.find(
+    (range) => salary >= range.min && salary <= range.max
+  );
+
+  return matchedRange ? matchedRange.range : "Unknown";
+};
 
 const JobCard = ({ job }) => {
-  const calculateSalaryRange = (minJdSalary, maxJdSalary) => {
-    const salary = (minJdSalary + maxJdSalary) / 2;
-    const salaryRanges = [
-      { range: "0L - 10L", min: 0, max: 10 },
-      { range: "11L - 20L", min: 11, max: 20 },
-      { range: "21L - 30L", min: 21, max: 30 },
-      { range: "31L - 40L", min: 31, max: 40 },
-      { range: "41L - 50L", min: 41, max: 50 },
-      { range: "51L - 60L", min: 51, max: 60 },
-      { range: "61L - 70L", min: 61, max: 70 },
-    ];
-
-    const matchedRange = salaryRanges.find(
-      (range) => salary >= range.min && salary <= range.max
-    );
-
-    return matchedRange ? matchedRange.range : "Unknown";
-  };
-
   const handlereferralButtonClick = () => {
     window.open("https://jobs.weekday.works/extension/candidate?", "_blank");
   };
@@ -158,30 +145,21 @@ const JobCard = ({ job }) => {
   );
 };
 
-const numberOfEmployeesRanges = [
-  { label: "1-10", value: "1-10" },
-  { label: "10-20", value: "10-20" },
-  { label: "21-50", value: "21-50" },
-  { label: "51-100", value: "51-100" },
-  { label: "101-200", value: "101-200" },
-  { label: "500+", value: "500+" },
-];
-
-const experienceRanges = Array.from({ length: 10 }, (_, i) => i + 1);
-
 const InfiniteScrollPage = ({ candidateInfo }) => {
   const [jdList, setJdList] = useState(candidateInfo?.jdList);
   const [isLoading, setIsLoading] = useState(false);
-  const [techStack, setTechStack] = useState([]);
-  const [minBasePay, setMinBasePay] = useState("");
   const [selectedFilters, setSelectedFilters] = useState({
     roles: [],
     employees: "",
     experience: [],
     location: [],
-    salary: "",
+    techstack: [],
+    minbasepay: "",
     company: "",
   });
+  const [filteredJobCount, setFilteredJobCount] = useState(
+    candidateInfo?.totalCount
+  );
 
   useEffect(() => {
     const handleScroll = () => {
@@ -209,42 +187,62 @@ const InfiniteScrollPage = ({ candidateInfo }) => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   });
-
-  const handleSelectChange = (event) => {
-    setSelectedFilters({
-      ...selectedFilters,
-      employees: event.target.value,
+  const calculateFilteredJobCount = () => {
+    const expArray = Array.isArray(selectedFilters.experience)
+      ? selectedFilters.experience
+      : [selectedFilters.experience];
+    const filteredList = candidateInfo.jdList.filter((job) => {
+      return (
+        // Check if the job role matches the selected role(s)
+        (selectedFilters.roles.length === 0 ||
+          selectedFilters.roles.includes(job.jobRole)) &&
+        // Check if the number of employees matches the selected value
+        (selectedFilters.employees === "" ||
+          selectedFilters.employees === job.numberOfEmployees) &&
+        // Check if the minimum experience matches any of the selected values
+        (expArray?.length === 0 || expArray?.includes(job.minExp)) &&
+        // Check if the location matches any of the selected values
+        (selectedFilters.location.length === 0 ||
+          selectedFilters.location.includes(job.location)) &&
+        // Check if the tech stack matches any of the selected values
+        (selectedFilters.techstack.length === 0 ||
+          selectedFilters.techstack.includes(job.techstack)) &&
+        // Check if the minimum base pay falls within the selected range
+        (selectedFilters.minbasepay === "" ||
+          calculateSalaryRange(job.minJdSalary, job.maxJdSalary) ===
+            selectedFilters.minbasepay) &&
+        // Check if the company name includes the specified text
+        (selectedFilters.company === "" ||
+          job.companyName
+            .toLowerCase()
+            .includes(selectedFilters.company.toLowerCase()))
+      );
     });
+
+    // Return the length of the filtered list
+    setFilteredJobCount(filteredList.length);
+    return filteredList.length;
   };
 
-  const handleInputChange = (event) => {
-    const { value } = event.target;
-    setSelectedFilters((prevFilters) => ({
-      ...prevFilters,
-      company: value,
-    }));
-  };
-
-  const handleDeleteChip = (value) => {
-    setSelectedFilters((prevFilters) => ({
-      ...prevFilters,
-      experience: prevFilters.experience.filter((exp) => exp !== value),
-    }));
-  };
-  const handleChange = (event) => {
-    setTechStack(event.target.value);
-  };
-  const handlePayChange = (event) => {
-    setMinBasePay(event.target.value);
-  };
-
-  const generatePayRangeOptions = () => {
-    const options = [];
-    for (let i = 0; i <= 70; i += 5) {
-      options.push(`${i}L`);
+  useEffect(() => {
+    const count = calculateFilteredJobCount();
+    setFilteredJobCount(count);
+  }, [selectedFilters]);
+  useEffect(() => {
+    // Set filtered job count to totalCount on initial render
+    if (
+      selectedFilters.roles.length === 0 &&
+      selectedFilters.employees === "" &&
+      selectedFilters.experience.length === 0 &&
+      selectedFilters.location.length === 0 &&
+      selectedFilters.techstack.length === 0 &&
+      selectedFilters.minbasepay === "" &&
+      selectedFilters.company === ""
+    ) {
+      setFilteredJobCount(candidateInfo?.totalCount);
     }
-    return options;
-  };
+  }, [selectedFilters, candidateInfo]);
+
   return (
     <div className="infinite-scroll-page">
       <ul className="search-jobs-heading-wrapper" role="tablist">
@@ -262,148 +260,19 @@ const InfiniteScrollPage = ({ candidateInfo }) => {
             <Badge class="search-jobs-header">
               Search jobs
               <Badge className="MuiBadge-badge MuiBadge-standard MuiBadge-anchorOriginTopRight MuiBadge-anchorOriginTopRightRectangular MuiBadge-overlapRectangular MuiBadge-colorPrimary css-ssfgsn">
-                {candidateInfo?.totalCount}
+                {filteredJobCount}
               </Badge>
             </Badge>
           </div>
         </li>
       </ul>
-      <div className="job-filters">
-        <FormControl variant="outlined" width="max-content">
-          <InputLabel htmlFor="roles-dropdown">
-            Roles
-            <Divider orientation="vertical" flexItem />
-          </InputLabel>
-          <Select
-            label="Roles"
-            id="roles-dropdown"
-            multiple
-            value={selectedFilters.roles}
-            onChange={(event) => handleSelectChange(event)}
-            renderValue={(selected) => selected.join(", ")}
-          >
-            {candidateInfo?.jdList.map((job, index) => (
-              <MenuItem key={index} value={job.jobRole}>
-                {job.jobRole}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl variant="outlined">
-          <InputLabel htmlFor="employees-dropdown">
-            Number of Employees
-            <Divider orientation="vertical" flexItem />
-          </InputLabel>
-          <Select
-            label="Number of Employees"
-            id="employees-dropdown"
-            value={selectedFilters.employees}
-            onChange={(event) => handleSelectChange(event)}
-          >
-            {numberOfEmployeesRanges.map((range, index) => (
-              <MenuItem key={index} value={range.value}>
-                {range.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl variant="outlined">
-          <InputLabel htmlFor="experience-dropdown">
-            Experience
-            <Divider orientation="vertical" flexItem />
-          </InputLabel>
-          <Select
-            label="Experience"
-            id="experience-dropdown"
-            value={selectedFilters.experience}
-            onChange={(event) => handleSelectChange(event)}
-          >
-            {experienceRanges.map((experience, index) => (
-              <MenuItem key={index} value={experience}>
-                {experience}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl variant="outlined">
-          <Select
-            label="Mode of Work"
-            id="Mode-of-Work"
-            multiple
-            value={selectedFilters.experience}
-            onChange={(event) => handleSelectChange(event)}
-            renderValue={(selected) => (
-              <div>
-                {selected.map((value) => (
-                  <Chip
-                    key={value}
-                    label={value}
-                    onDelete={() => handleDeleteChip(value)}
-                  />
-                ))}
-              </div>
-            )}
-          >
-            <MenuItem value="remote">Remote</MenuItem>
-            <MenuItem value="hybrid">Hybrid</MenuItem>
-            <MenuItem value="in-office">In-Office</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl variant="outlined">
-          <InputLabel id="tech-stack-label">Tech Stack</InputLabel>
-          <Select
-            labelId="tech-stack-label"
-            id="tech-stack-select"
-            multiple
-            value={techStack}
-            onChange={handleChange}
-            renderValue={(selected) => selected.join(", ")}
-          >
-            <MenuItem value="Python">Python</MenuItem>
-            <MenuItem value="Java">Java</MenuItem>
-            <MenuItem value="Golang">Golang</MenuItem>
-            <MenuItem value="Ruby/Rails">Ruby/Rails</MenuItem>
-            <MenuItem value="C++">C++</MenuItem>
-            <MenuItem value="Kotlin">Kotlin</MenuItem>
-            <MenuItem value="Django">Django</MenuItem>
-            <MenuItem value="C#">C#</MenuItem>
-            <MenuItem value="GraphQL">GraphQL</MenuItem>
-            <MenuItem value="Flask">Flask</MenuItem>
-            <MenuItem value="Typescript">Typescript</MenuItem>
-            <MenuItem value="AWS">AWS</MenuItem>
-            <MenuItem value="Javascript">Javascript</MenuItem>
-            <MenuItem value="Rust">Rust</MenuItem>
-            <MenuItem value="NodeJS">NodeJS</MenuItem>
-            <MenuItem value="React">React</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl variant="outlined">
-          <InputLabel id="min-base-pay-label">Min Base Pay</InputLabel>
-          <Select
-            labelId="min-base-pay-label"
-            id="min-base-pay-select"
-            value={minBasePay}
-            onChange={handlePayChange}
-          >
-            {generatePayRangeOptions().map((option, index) => (
-              <MenuItem key={index} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl>
-          <TextField
-            variant="outlined"
-            id="company-name-input"
-            label="Search by Company Name"
-            value={selectedFilters.company}
-            onChange={handleInputChange}
-          />
-        </FormControl>
-      </div>
+      <JobFilters
+        candidateInfo={candidateInfo}
+        selectedFilters={selectedFilters}
+        setSelectedFilters={setSelectedFilters}
+        calculateSalaryRange={calculateSalaryRange}
+        setJdList={setJdList}
+      />
 
       <div className="job-cards">
         {jdList?.map((job, index) => (
