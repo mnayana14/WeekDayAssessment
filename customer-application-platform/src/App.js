@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect,useState } from "react";
 import "./App.css";
 import { useDispatch, useSelector } from "react-redux";
 import { InfiniteScrollPage } from "./components/InfiniteScrollPage";
@@ -9,6 +9,7 @@ import {
 
 function App() {
   const dispatch = useDispatch();
+  const [offset, setOffset] = useState(0)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,7 +18,7 @@ function App() {
 
       const body = JSON.stringify({
         limit: 10,
-        offset: 0,
+        offset: offset,
       });
 
       const requestOptions = {
@@ -32,6 +33,7 @@ function App() {
           requestOptions
         );
         const data = await response.json();
+        console.log('jdListtt',data?.jdList)
         dispatch(setCandidateInfo(data));
         dispatch(updateJdList(data?.jdList));
       } catch (error) {
@@ -40,7 +42,8 @@ function App() {
     };
 
     fetchData();
-  }, []);
+  }, [offset]);
+
 
   const candidateInfo = useSelector((state) => state?.candidateInfo);
   const jdList = useSelector((state) => state?.candidateInfo?.jdList);
@@ -52,6 +55,8 @@ function App() {
           <InfiniteScrollPage
             candidateInfo={candidateInfo?.candidateInfo}
             jdList={jdList}
+            offset={offset}
+            setOffset={setOffset}
           />
         )}
       </header>

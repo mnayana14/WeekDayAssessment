@@ -47,7 +47,7 @@ const JobCard = ({ job }) => {
         </Box>
       </div>
       <Box className="individual-card">
-        <Avatar src={job.logoUrl} alt="Company Logo" />
+        <Avatar src={job?.logoUrl} alt="Company Logo" />
 
         <Box
           marginLeft="20px"
@@ -70,24 +70,24 @@ const JobCard = ({ job }) => {
               e.target.style.textDecoration = "none";
             }} // Remove underline when focus is lost
           >
-            {job.companyName}
+            {job?.companyName}
           </a>
-          <Typography variant="h2">{job.jobRole}</Typography>
+          <Typography variant="h2">{job?.jobRole}</Typography>
           <Typography variant="body1" className="cards-sub-text">
-            {job.location}
+            {job?.location}
           </Typography>
         </Box>
       </Box>
       <Typography style={{ color: "#37546D" }}>
         Estimated Salary:{" "}
-        {calculateSalaryRange(job.minJdSalary, job.maxJdSalary)}
+        {calculateSalaryRange(job?.minJdSalary, job?.maxJdSalary)}
       </Typography>
 
       <Box>
         <p>About Company:</p>
         <Typography style={{ fontWeight: 600 }}>About us</Typography>
         <Typography variant="body1" className="company-details-wrapper">
-          {job.jobDetailsFromCompany}
+          {job?.jobDetailsFromCompany}
         </Typography>
         <Box className="view-job-link">
           <a variant="contained" color="primary" href={job?.jdLink}>
@@ -144,7 +144,7 @@ const JobCard = ({ job }) => {
   );
 };
 
-export const InfiniteScrollPage = ({ candidateInfo, jdList }) => {
+export const InfiniteScrollPage = ({ candidateInfo,jdList ,setOffset ,offset}) => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
@@ -161,7 +161,7 @@ export const InfiniteScrollPage = ({ candidateInfo, jdList }) => {
   );
 
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll = () => {  
       if (
         window.innerHeight + document.documentElement.scrollTop >=
         document.documentElement.offsetHeight - 200
@@ -169,11 +169,13 @@ export const InfiniteScrollPage = ({ candidateInfo, jdList }) => {
         // Fetch more data when user reaches near the bottom of the page
         setIsLoading(true);
         // Simulate data fetching
+        setOffset(offset+10)
         setTimeout(() => {
-          dispatch(updateJdList([...jdList, ...jdList]));
+      dispatch(updateJdList([...jdList, ...jdList]));
           setIsLoading(false);
         }, 1000);
       }
+  
     };
 
     window.addEventListener("scroll", handleScroll);
