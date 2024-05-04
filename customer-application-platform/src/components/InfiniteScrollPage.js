@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import "../index.css";
 import { Badge, Box, Avatar, Typography, Button } from "@material-ui/core";
 import { JobFilters } from "./JobFilters";
+import { connect, useDispatch } from "react-redux";
+import {
+  updateJdList,
+} from "../application-redux/src/actions/jdListActions";
 
-// JobCard component
 const calculateSalaryRange = (minJdSalary, maxJdSalary) => {
   const salary = (minJdSalary + maxJdSalary) / 2;
   const salaryRanges = [
@@ -22,7 +25,7 @@ const calculateSalaryRange = (minJdSalary, maxJdSalary) => {
 
   return matchedRange ? matchedRange.range : "Unknown";
 };
-
+// JobCard component
 const JobCard = ({ job }) => {
   const handlereferralButtonClick = () => {
     window.open("https://jobs.weekday.works/extension/candidate?", "_blank");
@@ -141,8 +144,8 @@ const JobCard = ({ job }) => {
   );
 };
 
-const InfiniteScrollPage = ({ candidateInfo }) => {
-  const [jdList, setJdList] = useState(candidateInfo?.jdList);
+export const InfiniteScrollPage = ({ candidateInfo, jdList }) => {
+  const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     roles: [],
@@ -167,14 +170,7 @@ const InfiniteScrollPage = ({ candidateInfo }) => {
         setIsLoading(true);
         // Simulate data fetching
         setTimeout(() => {
-          setJdList((prevJdList) => {
-            // Check if prevJdList is an array
-            if (Array.isArray(prevJdList)) {
-              return [...prevJdList, ...candidateInfo?.jdList];
-            } else {
-              return [...candidateInfo?.jdList]; // If prevJdList is not an array, return candidateInfo as the new list
-            }
-          });
+          dispatch(updateJdList([...jdList, ...jdList]));
           setIsLoading(false);
         }, 1000);
       }
@@ -182,15 +178,16 @@ const InfiniteScrollPage = ({ candidateInfo }) => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  });
+  }, [dispatch, isLoading, jdList]);
+
   const calculateFilteredJobCount = () => {
     const expArray = Array.isArray(selectedFilters.experience)
       ? selectedFilters.experience
       : [selectedFilters.experience];
-    const filteredList = candidateInfo.jdList.filter((job) => {
+    const filteredList = candidateInfo?.jdList?.filter((job) => {
       return (
         // Check if the job role matches the selected role(s)
-        (selectedFilters.roles.length === 0 ||
+        (selectedFilters.roles?.length === 0 ||
           selectedFilters.roles.includes(job.jobRole)) &&
         // Check if the number of employees matches the selected value
         (selectedFilters.employees === "" ||
@@ -198,10 +195,10 @@ const InfiniteScrollPage = ({ candidateInfo }) => {
         // Check if the minimum experience matches any of the selected values
         (expArray?.length === 0 || expArray?.includes(job.minExp)) &&
         // Check if the location matches any of the selected values
-        (selectedFilters.location.length === 0 ||
+        (selectedFilters.location?.length === 0 ||
           selectedFilters.location.includes(job.location)) &&
         // Check if the tech stack matches any of the selected values
-        (selectedFilters.techstack.length === 0 ||
+        (selectedFilters.techstack?.length === 0 ||
           selectedFilters.techstack.includes(job.techstack)) &&
         // Check if the minimum base pay falls within the selected range
         (selectedFilters.minbasepay === "" ||
@@ -216,8 +213,8 @@ const InfiniteScrollPage = ({ candidateInfo }) => {
     });
 
     // Return the length of the filtered list
-    setFilteredJobCount(filteredList.length);
-    return filteredList.length;
+    setFilteredJobCount(filteredList?.length);
+    return filteredList?.length;
   };
 
   useEffect(() => {
@@ -227,11 +224,11 @@ const InfiniteScrollPage = ({ candidateInfo }) => {
   useEffect(() => {
     // Set filtered job count to totalCount on initial render
     if (
-      selectedFilters.roles.length === 0 &&
+      selectedFilters.roles?.length === 0 &&
       selectedFilters.employees === "" &&
-      selectedFilters.experience.length === 0 &&
-      selectedFilters.location.length === 0 &&
-      selectedFilters.techstack.length === 0 &&
+      selectedFilters.experience?.length === 0 &&
+      selectedFilters.location?.length === 0 &&
+      selectedFilters.techstack?.length === 0 &&
       selectedFilters.minbasepay === "" &&
       selectedFilters.company === ""
     ) {
@@ -267,7 +264,6 @@ const InfiniteScrollPage = ({ candidateInfo }) => {
         selectedFilters={selectedFilters}
         setSelectedFilters={setSelectedFilters}
         calculateSalaryRange={calculateSalaryRange}
-        setJdList={setJdList}
       />
 
       <div className="job-cards">
@@ -280,4 +276,15 @@ const InfiniteScrollPage = ({ candidateInfo }) => {
   );
 };
 
-export default InfiniteScrollPage;
+const mapDispatchToProps = (dispatch) => ({
+  jdList: (jdList) => dispatch(updateJdList(jdList)),
+});
+
+const mapStateToProps = (state) => ({
+  candidateInfo: {
+    jdList: state.jdList,
+    totalCount: state.jdList.length,
+  },
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(InfiniteScrollPage);

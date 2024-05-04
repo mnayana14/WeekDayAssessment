@@ -1,14 +1,16 @@
 import React, { useEffect } from "react";
 import "../index.css";
 import { CustomizedSelects } from "./multiSelectDropdown";
+import { connect, useDispatch } from "react-redux";
+import { updateFilters, updateJdList } from "../application-redux/src/actions/jdListActions";
 
 export const JobFilters = ({
   candidateInfo,
   selectedFilters,
   setSelectedFilters,
   calculateSalaryRange,
-  setJdList,
 }) => {
+    const dispatch=useDispatch()
   const numberOfEmployeesRanges = [
     { label: "1-10", value: "1-10" },
     { label: "10-20", value: "10-20" },
@@ -20,14 +22,14 @@ export const JobFilters = ({
 
   const experienceRanges = Array.from({ length: 10 }, (_, i) => i + 1);
   const applyFilters = () => {
-    const filteredList = candidateInfo.jdList.filter((job) => {
+    const filteredList = candidateInfo?.jdList?.filter((job) => {
       const salaryRange = calculateSalaryRange(
         job.minJdSalary,
         job.maxJdSalary
       );
       const [minSalary, maxSalary] = salaryRange
         .split("-")
-        .map((s) => parseInt(s));
+        ?.map((s) => parseInt(s));
       if (
         selectedFilters.roles.length > 0 &&
         !selectedFilters.roles.includes(job.jobRole)
@@ -76,7 +78,7 @@ export const JobFilters = ({
       return true;
     });
 
-    setJdList(filteredList);
+    dispatch(updateJdList(filteredList));
   };
   const handleSelectChange = (event, filterName) => {
     const { value } = event.target;
@@ -94,12 +96,6 @@ export const JobFilters = ({
     }));
   };
 
-  const handleDeleteChip = (value) => {
-    setSelectedFilters((prevFilters) => ({
-      ...prevFilters,
-      experience: prevFilters.experience.filter((exp) => exp !== value),
-    }));
-  };
   const handleTechStackChange = (event) => {
     setSelectedFilters((prevFilters) => ({
       ...prevFilters,
@@ -127,7 +123,7 @@ export const JobFilters = ({
     return options;
   };
   const uniqueRoles = Array.from(
-    new Set(candidateInfo?.jdList.map((job) => job.jobRole))
+    new Set(candidateInfo?.jdList?.map((job) => job.jobRole))
   );
   const techStackOptions = [
     "Python",
@@ -167,7 +163,7 @@ export const JobFilters = ({
           onChange={(event) => handleSelectChange(event, "employees")}
         >
           <option value="">Number Of Employees</option>
-          {numberOfEmployeesRanges.map((range, index) => (
+          {numberOfEmployeesRanges?.map((range, index) => (
             <option key={index} value={range.value}>
               {range.label}
             </option>
@@ -181,7 +177,7 @@ export const JobFilters = ({
           onChange={(event) => handleSelectChange(event, "experience")}
         >
           <option value="">Experience</option>
-          {experienceRanges.map((experience, index) => (
+          {experienceRanges?.map((experience, index) => (
             <option key={index} value={experience}>
               {experience}
             </option>
@@ -199,7 +195,7 @@ export const JobFilters = ({
       <div className="custom-dropdown">
         <select value={selectedFilters.minbasepay} onChange={handlePayChange}>
           <option value="">Minimum Base Pay Salary</option>
-          {generatePayRangeOptions().map((option, index) => (
+          {generatePayRangeOptions()?.map((option, index) => (
             <option key={index} value={option}>
               {option}
             </option>
@@ -219,3 +215,12 @@ export const JobFilters = ({
     </div>
   );
 };
+const mapDispatchToProps = (dispatch) => ({
+  setFilters: (filters) => dispatch(updateFilters(filters)),
+});
+
+const mapStateToProps = (state) => ({
+  selectedFilters: state.filters,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(JobFilters);
