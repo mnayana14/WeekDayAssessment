@@ -110,3 +110,68 @@
   border-radius: 10px;
   border: 1px solid rgb(230, 230, 230);
 }
+/* Custom dropdown styles */
+.custom-dropdown {
+  margin-bottom: 10px;
+}
+.MuiFormControl-root .MuiOutlinedInput-root .MuiOutlinedInput-input {
+   padding: 8px 32px 8px 8px;
+}
+
+
+
+.custom-dropdown label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.custom-dropdown select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  font-size: 16px;
+}
+
+/* Custom textfield styles */
+.custom-textfield {
+  margin-bottom: 10px;
+}
+
+.custom-textfield label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.custom-textfield input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  font-size: 16px;
+}
+.custom-form-control {
+  min-width: 160px;
+}
+
+.custom-text-field {
+  width: 100%;
+  padding: 8px; /* Example padding */
+  border: 1px solid #ccc; /* Example border */
+  border-radius: 4px; /* Example border-radius */
+  /* Add other custom styles as needed */
+}
+.view-job-link{
+    text-align: center;
+    margin-bottom: 0.5rem;
+    position: relative;
+    top: -20px;
+    text-underline-position: none;
+}
+.company-details-wrapper{
+    height: 250px;
+    overflow: hidden;
+    mask-image: linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255), rgba(255, 255, 255, 0));
+}

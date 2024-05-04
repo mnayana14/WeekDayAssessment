@@ -1,12 +1,6 @@
 import React, { useEffect } from "react";
 import "../index.css";
-import {
-  FormControl,
-  MenuItem,
-  Select,
-  TextField,
-  Chip,
-} from "@material-ui/core";
+import { CustomizedSelects } from "./multiSelectDropdown";
 
 export const JobFilters = ({
   candidateInfo,
@@ -106,10 +100,16 @@ export const JobFilters = ({
       experience: prevFilters.experience.filter((exp) => exp !== value),
     }));
   };
-  const handleChange = (event) => {
+  const handleTechStackChange = (event) => {
     setSelectedFilters((prevFilters) => ({
       ...prevFilters,
       techstack: event.target.value,
+    }));
+  };
+  const handleRoleChange = (event) => {
+    setSelectedFilters((prevFilters) => ({
+      ...prevFilters,
+      roles: event.target.value,
     }));
   };
   const handlePayChange = (event) => {
@@ -126,6 +126,27 @@ export const JobFilters = ({
     }
     return options;
   };
+  const uniqueRoles = Array.from(
+    new Set(candidateInfo?.jdList.map((job) => job.jobRole))
+  );
+  const techStackOptions = [
+    "Python",
+    "Java",
+    "Golang",
+    "Ruby/Rails",
+    "C++",
+    "Kotlin",
+    "Django",
+    "C#",
+    "GraphQL",
+    "Flask",
+    "Typescript",
+    "AWS",
+    "Javascript",
+    "Rust",
+    "NodeJS",
+    "React",
+  ];
 
   useEffect(() => {
     applyFilters();
@@ -133,150 +154,68 @@ export const JobFilters = ({
 
   return (
     <div className="job-filters">
-      <FormControl sx={{ m: 1, minWidth: 200 }} variant="outlined">
-        <Select
-          value={selectedFilters.roles}
-          onChange={(event) => handleSelectChange(event, "roles")}
-          displayEmpty
-        >
-          <MenuItem value="">
-            <em>Roles</em>
-          </MenuItem>
-          {candidateInfo?.jdList.map((job, index) => (
-            <MenuItem key={index} value={job.jobRole}>
-              {job.jobRole}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <CustomizedSelects
+        options={uniqueRoles}
+        filter={"Roles"}
+        handleChange={handleRoleChange}
+        selectedFilters={selectedFilters.roles}
+      />
 
-      <FormControl variant="outlined" sx={{ m: 1, minWidth: 200 }}>
-        <Select
+      <div className="custom-dropdown">
+        <select
           value={selectedFilters.employees}
           onChange={(event) => handleSelectChange(event, "employees")}
-          displayEmpty
         >
-          <MenuItem value="">
-            <em>Number Of Employees</em>
-          </MenuItem>
+          <option value="">Number Of Employees</option>
           {numberOfEmployeesRanges.map((range, index) => (
-            <MenuItem key={index} value={range.value}>
+            <option key={index} value={range.value}>
               {range.label}
-            </MenuItem>
+            </option>
           ))}
-        </Select>
-      </FormControl>
-      <FormControl variant="outlined" sx={{ m: 1, minWidth: 200 }}>
-        <Select
+        </select>
+      </div>
+
+      <div className="custom-dropdown">
+        <select
           value={selectedFilters.experience}
           onChange={(event) => handleSelectChange(event, "experience")}
-          displayEmpty
         >
-          <MenuItem value="">
-            <em>Experience</em>
-          </MenuItem>
+          <option value="">Experience</option>
           {experienceRanges.map((experience, index) => (
-            <MenuItem key={index} value={experience}>
+            <option key={index} value={experience}>
               {experience}
-            </MenuItem>
+            </option>
           ))}
-        </Select>
-      </FormControl>
-      <FormControl variant="outlined" sx={{ m: 1, minWidth: 200 }}>
-        <Select
-          multiple
-          value={selectedFilters.location}
-          onChange={(event) => handleSelectChange(event, "location")}
-          displayEmpty
-          renderValue={(selected) => {
-            if (!Array.isArray(selected)) {
-              return "";
-            }
-            return selected.length > 0 ? (
-              <div>
-                {selected.map((value) => (
-                  <Chip
-                    key={value}
-                    label={value}
-                    onDelete={() => handleDeleteChip(value)}
-                  />
-                ))}
-              </div>
-            ) : (
-              "Remote"
-            );
-          }}
-        >
-          <MenuItem value="Remote">Remote</MenuItem>
-          <MenuItem value="Hybrid">Hybrid</MenuItem>
-          <MenuItem value="In-Office">In-Office</MenuItem>
-        </Select>
-      </FormControl>
-      <FormControl variant="outlined" sx={{ m: 1, minWidth: 200 }}>
-        <Select
-          multiple
-          value={selectedFilters.techstack}
-          onChange={handleChange}
-          renderValue={(selected) => {
-            return selected.length > 0 ? selected.join(", ") : "Tech Stack";
-          }}
-          displayEmpty
-        >
-          <MenuItem value="">
-            <em>Tech Stack</em>
-          </MenuItem>
-          {[
-            "Python",
-            "Java",
-            "Golang",
-            "Ruby/Rails",
-            "C++",
-            "Kotlin",
-            "Django",
-            "C#",
-            "GraphQL",
-            "Flask",
-            "Typescript",
-            "AWS",
-            "Javascript",
-            "Rust",
-            "NodeJS",
-            "React",
-          ].map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl variant="outlined" sx={{ m: 1, minWidth: 200 }}>
-        <Select
-          value={selectedFilters.minbasepay}
-          onChange={handlePayChange}
-          displayEmpty
-        >
-          <MenuItem value="">
-            <em>Minimum Base Pay Salary</em>
-          </MenuItem>
-          {generatePayRangeOptions().map((option, index) => (
-            <MenuItem key={index} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+        </select>
+      </div>
 
-      <FormControl variant="outlined" sx={{ m: 1, minWidth: 200 }}>
-        <TextField
-          variant="outlined"
+      <CustomizedSelects
+        options={techStackOptions}
+        filter={"Tech Stack"}
+        handleChange={handleTechStackChange}
+        selectedFilters={selectedFilters.techstack}
+      />
+
+      <div className="custom-dropdown">
+        <select value={selectedFilters.minbasepay} onChange={handlePayChange}>
+          <option value="">Minimum Base Pay Salary</option>
+          {generatePayRangeOptions().map((option, index) => (
+            <option key={index} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div class="custom-form-control">
+        <input
+          type="text"
+          class="custom-text-field"
           placeholder="Search Company Name"
           value={selectedFilters.company}
           onChange={(event) => handleInputChange(event, "company")}
-          InputLabelProps={{
-            shrink: true,
-          }}
         />
-      </FormControl>
+      </div>
     </div>
   );
 };

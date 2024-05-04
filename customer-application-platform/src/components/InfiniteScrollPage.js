@@ -79,66 +79,62 @@ const JobCard = ({ job }) => {
         Estimated Salary:{" "}
         {calculateSalaryRange(job.minJdSalary, job.maxJdSalary)}
       </Typography>
-      <p>About Company:</p>
-      <Box>
-        <Typography style={{ fontWeight: 600 }}>About us</Typography>
-        <Typography variant="body1">{job.jobDetailsFromCompany}</Typography>
-        <a
-          variant="contained"
-          color="primary"
-          href={job?.jdLink}
-          style={{
-            marginTop: "10px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
-          }}
-        >
-          View Job
-        </a>
-      </Box>
 
-      <Typography style={{ color: "#37546D" }}>Minimum Experience:</Typography>
-      <text> {job?.minExp}</text>
-      <Box style={{ paddingTop: "8px" }}>
-        <Box>
-          <Button
-            tabindex="0"
-            type="button"
-            className="easy-apply-button"
-            style={{ backgroundColor: "#55EFC4", marginBottom: "8px" }}
-          >
-            ⚡ Easy Apply
-          </Button>
+      <Box>
+        <p>About Company:</p>
+        <Typography style={{ fontWeight: 600 }}>About us</Typography>
+        <Typography variant="body1" className="company-details-wrapper">
+          {job.jobDetailsFromCompany}
+        </Typography>
+        <Box className="view-job-link">
+          <a variant="contained" color="primary" href={job?.jdLink}>
+            View Job
+          </a>
         </Box>
-        <Box>
-          <Button
-            className="referral-button"
-            tabindex="0"
-            type="button"
-            id="custom-btn"
-            onClick={handlereferralButtonClick}
-          >
-            <div style={{ display: "contents" }}>
-              <Avatar>
-                <img
-                  src="https://weekday-logos-and-images.s3.eu-north-1.amazonaws.com/Mask+Group.png"
-                  class="MuiAvatar-img css-1hy9t21"
-                />
-              </Avatar>
-              <div class="MuiAvatar-root MuiAvatar-circular css-1r1mq0y">
-                <img
-                  src="https://weekday-logos-and-images.s3.eu-north-1.amazonaws.com/Mask+Group(1).png"
-                  class="MuiAvatar-img css-1hy9t21"
-                />
+
+        <Box style={{ paddingTop: "8px" }}>
+          <Typography style={{ color: "#37546D" }}>
+            Minimum Experience:
+          </Typography>
+          <text> {job?.minExp}</text>
+          <Box>
+            <Button
+              tabindex="0"
+              type="button"
+              className="easy-apply-button"
+              style={{ backgroundColor: "#55EFC4", marginBottom: "8px" }}
+            >
+              ⚡ Easy Apply
+            </Button>
+          </Box>
+          <Box>
+            <Button
+              className="referral-button"
+              tabindex="0"
+              type="button"
+              id="custom-btn"
+              onClick={handlereferralButtonClick}
+            >
+              <div style={{ display: "contents" }}>
+                <Avatar>
+                  <img
+                    src="https://weekday-logos-and-images.s3.eu-north-1.amazonaws.com/Mask+Group.png"
+                    class="MuiAvatar-img css-1hy9t21"
+                  />
+                </Avatar>
+                <div class="MuiAvatar-root MuiAvatar-circular css-1r1mq0y">
+                  <img
+                    src="https://weekday-logos-and-images.s3.eu-north-1.amazonaws.com/Mask+Group(1).png"
+                    class="MuiAvatar-img css-1hy9t21"
+                  />
+                </div>
+                <p class="MuiTypography-root MuiTypography-body1 css-13uo6gx">
+                  Unlock referral asks
+                </p>
               </div>
-              <p class="MuiTypography-root MuiTypography-body1 css-13uo6gx">
-                Unlock referral asks
-              </p>
-            </div>
-            <span class="MuiTouchRipple-root css-w0pj6f"></span>
-          </Button>
+              <span class="MuiTouchRipple-root css-w0pj6f"></span>
+            </Button>
+          </Box>
         </Box>
       </Box>
     </Box>
